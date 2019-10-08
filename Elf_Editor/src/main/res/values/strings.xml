@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<resources>
+    <string name="app_name">Elf Editor</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    <string name="failure">Failure</string>
+    <string name="parsing">Parsing...</string>
+    <string name="saving">Saving...</string>
+    <string name="notice">Notice</string>
+    <string name="ensure_save">Are you sure you want to save?</string>
+    <string name="out_of_memory">Memory overflow!</string>
+    <string name="crash_message">Unfortunately, the program crashed.  Please send \"ElfEditor_CrashLog.log\" in the memory card directory to the developer for repair.</string>
+	<string name="permission_alert">Without access to the storage, the application will not be able to work!</string>
+	<string name="copied">Copied</string>
+	<string name="install_fm">Please install the file manager</string>
+	<string name="select_file">Please select a file!</string>
+	<string name="err_rename">Error when renamed the file: %s</string>
+</resources>
