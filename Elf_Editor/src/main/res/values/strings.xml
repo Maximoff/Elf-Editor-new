@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Elf Editor</string>
     <string name="ok">Ok</string>
+	<string name="no">No</string>
     <string name="cancel">Cancel</string>
     <string name="error">Error</string>
     <string name="success">Success</string>
@@ -16,6 +17,8 @@
 	<string name="install_fm">Please install the file manager</string>
 	<string name="select_file">Please select a file!</string>
 	<string name="err_rename">Error when renamed the file: %s</string>
+	<string name="copy">Copy text</string>
+	<string name="b64">Decode base64</string>
 	<string name="open">Open</string>
 	<string name="save">Save</string>
 	<string name="search">Search</string>

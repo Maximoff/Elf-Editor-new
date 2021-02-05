@@ -48,12 +48,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.text.ClipboardManager;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -67,6 +68,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.ByteArrayInputStream;
@@ -85,11 +87,12 @@ import java.util.Map;
 import java.util.UnknownFormatConversionException;
 import zhao.elf.editor.R;
 import zhao.elf.editor.util.FileUtil;
-import android.util.Log;
 
 // TEST PUSH!
 
 public class MainActivity extends Activity {
+	private final int TVERY_LIGHT_BLUE = Color.argb(100, 51, 204, 255);
+	private final int TVERY_LIGHT_GREY = Color.argb(50, 204, 204, 204);
 
 	/**
 	 * 一个用来获取解析后的资源的线程
@@ -330,7 +333,9 @@ public class MainActivity extends Activity {
 		// 获取View
 		@SuppressLint({ "ViewHolder", "InflateParams" })
 		@Override
-		public View getView(final int position, View view, ViewGroup arg2) {
+		public View getView(final int position, View v, ViewGroup arg2) {
+			// 创建view对象
+			final View view = LayoutInflater.from(mContext).inflate(R.layout.res_string_item, null);
 
 			// 文本框内容改变的事件监听器
 			TextWatcher textWatcher = new TextWatcher() {
@@ -341,6 +346,13 @@ public class MainActivity extends Activity {
 					// 向当前位置添加新的内容，以此实现文本的更新
 					txtTranslated.set(position, s.toString());
 					isChanged = true;
+					if (!filteredList.contains(position)) {
+						if (s.length() > 0) {
+							view.setBackgroundColor(TVERY_LIGHT_GREY);
+						} else {
+							view.setBackgroundColor(Color.TRANSPARENT);
+						}
+					}
 				}
 
 				// 文本改变之前的事件处理
@@ -353,13 +365,13 @@ public class MainActivity extends Activity {
 				public void onTextChanged(CharSequence s, int start, int before, int count) {
 
 				}
-
 			};
 
-			// 创建view对象
-			view = LayoutInflater.from(mContext).inflate(R.layout.res_string_item, null);
+			String trans = txtTranslated.get(position);
 			if (filteredList.contains(position)) {
-				view.setBackgroundColor(Color.GRAY);
+				view.setBackgroundColor(TVERY_LIGHT_BLUE);
+			} else if (!trans.equals("")) {
+				view.setBackgroundColor(TVERY_LIGHT_GREY);
 			} else {
 				view.setBackgroundColor(Color.TRANSPARENT);
 			}
@@ -373,7 +385,7 @@ public class MainActivity extends Activity {
 			txtOriginalView.setText(originalStr);
 			// 显示修改后的字符串
 			// txtTranslatedView.setText(originalStr);
-			txtTranslatedView.setText(txtTranslated.get(position));
+			txtTranslatedView.setText(trans);
 			txtTranslatedView.setFilters(new InputFilter[] { new InputFilter() {
 												 @Override
 												 public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart,
@@ -398,13 +410,47 @@ public class MainActivity extends Activity {
 			View.OnLongClickListener longclick_listener = new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					ClipboardManager cm = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-					// 将文本内容放到系统剪贴板里。
-					cm.setText(txtOriginalView.getText());
-					st(getString(R.string.copied));
+					setClipboard(txtOriginalView.getText().toString());
 					return true;
 				}
 			};
+			txtOriginalView.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View p1) {
+						PopupMenu popup = new PopupMenu(mContext, p1);
+						MenuItem mi = popup.getMenu().add(0, 1010, 0, getString(R.string.copy));
+						mi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+							{
+								@Override
+								public boolean onMenuItemClick(MenuItem m) {
+									setClipboard(txtOriginalView.getText().toString());
+									return true;
+								}
+							});
+						MenuItem mi2 = popup.getMenu().add(0, 1011, 0, getString(R.string.b64));
+						mi2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+							{
+								@Override
+								public boolean onMenuItemClick(MenuItem m) {
+									String b64d = base64decode(txtOriginalView.getText().toString());
+									if (b64d != null) {
+										EditText et = new EditText(mContext);
+										et.setText(b64d);
+										new AlertDialog.Builder(mContext).
+											setView(et).
+											setTitle(R.string.b64).
+											setPositiveButton(R.string.ok, null).
+											create().
+											show();
+									} else {
+										st(getString(R.string.error));
+									}
+									return true;
+								}
+							});
+						popup.show();
+					}
+				});
 			txtOriginalView.setOnLongClickListener(longclick_listener);
 			return view;
 		}
@@ -770,7 +816,7 @@ public class MainActivity extends Activity {
 						showMessage(MainActivity.this, getString(R.string.err_rename, fileSrc)).show();
 					}
 				}
-			}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (exit) {
@@ -877,7 +923,7 @@ public class MainActivity extends Activity {
 			case R.id.save:
 				showSaveDialog(false);
 				return true;
-				
+
 			case R.id.about:
 				aboutDialog();
 				return true;
@@ -913,4 +959,28 @@ public class MainActivity extends Activity {
 				return super.onOptionsItemSelected(item);
 		}
 	}
+
+	public void setClipboard(String text) {
+		if (text == null || text.equals("")) {
+			return;
+		}
+		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(text);
+		} else {
+			android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+			android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
+			clipboard.setPrimaryClip(clip);
+		}
+		st(getString(R.string.copied));
+	}
+
+	public static String base64decode(String text) {
+        try {
+            byte[] valueDecoded= Base64.decode(text.getBytes(), Base64.NO_WRAP);
+			return new String(valueDecoded);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

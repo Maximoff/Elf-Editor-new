@@ -15,6 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-ignorewarnings
+
 -keepattributes SourceFile, LineNumberTable
 
 -renamesourcefileattribute SourceFile
