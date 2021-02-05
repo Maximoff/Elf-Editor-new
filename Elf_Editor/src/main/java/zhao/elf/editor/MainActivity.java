@@ -85,6 +85,7 @@ import java.util.Map;
 import java.util.UnknownFormatConversionException;
 import zhao.elf.editor.R;
 import zhao.elf.editor.util.FileUtil;
+import android.util.Log;
 
 // TEST PUSH!
 
@@ -193,6 +194,8 @@ public class MainActivity extends Activity {
 			// 开启新线程
 			AsyncTask<String, Void, Void> getTask = new GetTask();
 			getTask.execute(textCategory.getText().toString());
+			isOpened = true;
+			invalidateOptionsMenu();
 		}
 
 		// 耗时任务开始前执行的任务
@@ -231,7 +234,6 @@ public class MainActivity extends Activity {
 		protected void onProgressUpdate(Integer... values) {
 			dlg.setMessage(String.valueOf(values[0]));
 		}
-
 	}
 
 	/**
@@ -466,6 +468,8 @@ public class MainActivity extends Activity {
 	private List<Integer> filteredList = new ArrayList<>();
 
 	private int searchPosition = 0;
+	
+	private boolean isOpened = false;
 
 	/**
 	 * 文本框内容改变的事件监听器
@@ -714,12 +718,15 @@ public class MainActivity extends Activity {
 			task.execute(resInputStream);
 		} catch (OutOfMemoryError e) {
 			showMessage(this, getString(R.string.out_of_memory)).show();
+			return;
+		} catch (Exception e) {
+			showMessage(this, Log.getStackTraceString(e)).show();
+			return;
 		}
 		// 初始化一个线程用来获取解析后的资源
 		AsyncTask<String, Void, Void> getTask = new GetTask();
 		// 开启该线程
 		getTask.execute(textCategory.getText().toString());
-		invalidateOptionsMenu();
 	}
 
 	public void OpenSystemFile() {
@@ -749,7 +756,7 @@ public class MainActivity extends Activity {
 
 	/** 显示保存文件的对话框 **/
 	private void showSaveDialog(final boolean exit) {
-		new AlertDialog.Builder(this).setTitle(R.string.notice).setMessage(R.string.ensure_save)
+		new AlertDialog.Builder(this).setMessage(R.string.ensure_save)
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -792,7 +799,7 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
-		menu.findItem(R.id.save).setEnabled(!mTypes.isEmpty());
+		menu.findItem(R.id.save).setEnabled(isOpened);
 		return true;
 	}
 
