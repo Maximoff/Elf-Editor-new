@@ -8,7 +8,6 @@
     <string name="failure">Failure</string>
     <string name="parsing">Parsing...</string>
     <string name="saving">Saving...</string>
-    <string name="notice">Notice</string>
     <string name="ensure_save">Are you sure you want to save?</string>
     <string name="out_of_memory">Memory overflow!</string>
     <string name="crash_message">Unfortunately, the program crashed.  Please send \"ElfEditor_CrashLog.log\" in the memory card directory to the developer for repair.</string>
@@ -22,4 +21,8 @@
 	<string name="search">Search</string>
 	<string name="exit">Exit</string>
 	<string name="select">Select a file</string>
+	<string name="thanks">Give thanks</string>
+	<string name="github">GitHub</string>
+	<string name="about">About</string>
+	<string name="about_text">ELF library editor for Android.</string>
 </resources>

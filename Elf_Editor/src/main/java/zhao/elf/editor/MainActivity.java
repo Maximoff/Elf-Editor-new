@@ -468,7 +468,7 @@ public class MainActivity extends Activity {
 	private List<Integer> filteredList = new ArrayList<>();
 
 	private int searchPosition = 0;
-	
+
 	private boolean isOpened = false;
 
 	/**
@@ -626,7 +626,7 @@ public class MainActivity extends Activity {
 		mAdapter = new stringListAdapter(this);
 		// 为列表控件设置数据适配器
 		stringListView.setAdapter(mAdapter);
-		
+
 		mTypes = new ArrayList<String>();
 
 		searchWrap = findViewById(R.id.search_wrapper);
@@ -635,7 +635,7 @@ public class MainActivity extends Activity {
 		searchField.setOnKeyListener(new View.OnKeyListener() {
 				public boolean onKey(View v, int keyCode, KeyEvent event) {
 					if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-						if (searchPosition < filteredList.size() - 1) {
+						if (searchPosition + 1 < filteredList.size()) {
 							searchPosition++;
 						} else {
 							searchPosition = 0;
@@ -795,11 +795,75 @@ public class MainActivity extends Activity {
 		fos.close();
 	}
 
+	private void aboutDialog() {
+		new AlertDialog.Builder(this).
+			setCancelable(true).
+			setIcon(R.drawable.ic_launcher).
+			setTitle(R.string.about).
+			setMessage(R.string.about_text).
+			setPositiveButton(R.string.ok, null).
+			setNegativeButton(R.string.github, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface p1, int p2) {
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setData(Uri.parse("https://github.com/Maximoff/Elf-Editor-new"));
+					startActivity(i);
+				}
+			}).
+			setNeutralButton(R.string.thanks, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface p1, int p2) {
+					thanksDialog();
+				}
+			}).
+			create().show();
+	}
+
+	private void thanksDialog() {
+		final String[] items = new String[]{"QIWI", "YooMoney", "PayPal", "4PDA"};
+		new AlertDialog.Builder(this).
+			setCancelable(true).
+			setTitle(R.string.thanks).
+			setItems(items, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface p1, int p2) {
+					Uri uri = null;
+					switch (p2) {
+						case 0:
+							uri = Uri.parse("https://qiwi.com/n/MAXIM0FF");
+							break;
+
+						case 1:
+							uri = Uri.parse("https://yoomoney.ru/to/410013008761175");
+							break;
+
+						case 2:
+							uri = Uri.parse("https://paypal.me/maxim0ff");
+							break;
+
+						case 3:
+							uri = Uri.parse("https://4pda.ru/forum/index.php?act=rep&view=win_add&mid=4424665");
+							break;
+
+						default:
+							uri = Uri.parse("https://4pda.ru/forum/index.php?act=rep&view=win_add&mid=4424665");
+							break;
+					}
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.setData(uri);
+					startActivity(i);
+				}
+			}).
+			create().
+			show();
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
 		menu.findItem(R.id.save).setEnabled(isOpened);
+		menu.findItem(R.id.search).setEnabled(isOpened);
 		return true;
 	}
 
@@ -812,6 +876,10 @@ public class MainActivity extends Activity {
 
 			case R.id.save:
 				showSaveDialog(false);
+				return true;
+				
+			case R.id.about:
+				aboutDialog();
 				return true;
 
 			case R.id.exit:

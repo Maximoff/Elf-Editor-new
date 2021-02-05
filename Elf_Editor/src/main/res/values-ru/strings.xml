@@ -8,7 +8,6 @@
     <string name="failure">Неудача</string>
     <string name="parsing">Парсинг...</string>
     <string name="saving">Сохранение...</string>
-    <string name="notice">Уведомление</string>
     <string name="ensure_save">Хотите сохранить файл?</string>
     <string name="out_of_memory">Памяти не хватило!</string>
     <string name="crash_message">К сожалению, программа упала. Отправьте файл \"ElfEditor_CrashLog.log\" из внутренней памяти разработчику для исправления.</string>
@@ -22,4 +21,7 @@
 	<string name="search">Поиск</string>
 	<string name="exit">Выход</string>
 	<string name="select">Выберите файл</string>
+	<string name="thanks">Поблагодарить</string>
+	<string name="about">О программе</string>
+	<string name="about_text">Редактор ELF библиотек для Android.</string>
 </resources>
