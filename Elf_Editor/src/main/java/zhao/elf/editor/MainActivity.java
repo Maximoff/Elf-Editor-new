@@ -280,6 +280,16 @@ public class MainActivity extends Activity {
 			st(R.string.success);
 			if (exit) {
 				finish();
+			} else {
+				isChanged = false;
+				for (int i = 0; i < txtOriginal.size(); i++) {
+					String s = txtTranslated.get(i);
+					if (!s.equals("")) {
+						txtOriginal.set(i,s);
+						txtTranslated.set(i, "");
+					}
+				}
+				mAdapter.notifyDataSetChanged();
 			}
 		}
 
@@ -500,8 +510,6 @@ public class MainActivity extends Activity {
 			.setCancelable(false).setTitle(R.string.error);
 	}
 
-	private String fileSrc;
-
 	private Elf elfParser;
 
 	// 存储字符串的集合
@@ -541,7 +549,7 @@ public class MainActivity extends Activity {
 
 	private boolean darkTheme;
 
-	private File openedFile;
+	private String openedFile;
 
 	/**
 	 * 文本框内容改变的事件监听器
@@ -723,7 +731,7 @@ public class MainActivity extends Activity {
 			});
 		checkPerm(this, new String[]{"READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"});
 		if (savedInstanceState != null && savedInstanceState.containsKey("opened_file")) {
-			openedFile = new File(savedInstanceState.getString("opened_file"));
+			openedFile = savedInstanceState.getString("opened_file");
 			try {
 				open(new FileInputStream(openedFile));
 			} catch (Exception e) {}
@@ -751,7 +759,7 @@ public class MainActivity extends Activity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (openedFile != null) {
-			outState.putString("opened_file", openedFile.getAbsolutePath());
+			outState.putString("opened_file", openedFile);
 		}
 	}
 
@@ -846,14 +854,14 @@ public class MainActivity extends Activity {
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					File file = new File(fileSrc);
-					File bak = new File(fileSrc + ".bak");
+					File file = new File(openedFile);
+					File bak = new File(openedFile + ".bak");
 					if (file.renameTo(bak)) {
 						file.delete();
 						SaveFileTask saveTask = new SaveFileTask(exit);
-						saveTask.execute(fileSrc);
+						saveTask.execute(openedFile);
 					} else {
-						showMessage(MainActivity.this, getString(R.string.err_rename, fileSrc)).show();
+						showMessage(MainActivity.this, getString(R.string.err_rename, openedFile)).show();
 					}
 				}
 			}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -998,12 +1006,12 @@ public class MainActivity extends Activity {
 				if (openedFile != null) {
 					new AlertDialog.Builder(this).
 						setTitle(R.string.opened).
-						setMessage(openedFile.getAbsolutePath()).
+						setMessage(openedFile).
 						setPositiveButton(R.string.ok, null).
 						setNegativeButton(R.string.copy, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface p1, int p2) {
-								setClipboard(openedFile.getAbsolutePath());
+								setClipboard(openedFile);
 							}
 						}).
 						create().
@@ -1094,7 +1102,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void fileSelected(final File file) {
 					try {
-						openedFile = file;
+						openedFile = file.getAbsolutePath();
 						open(new FileInputStream(openedFile));
 					} catch (Exception e) {
 						openedFile = null;
