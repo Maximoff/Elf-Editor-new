@@ -189,7 +189,7 @@ public class MainActivity extends Activity {
 				return;
 			}
 			// 对资源种类列表排序
-			Collections.sort(Types);
+			Collections.sort(mTypes);
 			// 开启新线程
 			AsyncTask<String, Void, Void> getTask = new GetTask();
 			getTask.execute(textCategory.getText().toString());
@@ -205,9 +205,9 @@ public class MainActivity extends Activity {
 			dlg.show();
 			textCategory.setText("dynstr");
 			// 如果储存资源类型的列表未初始化
-			if (Types == null) {
+			if (mTypes == null) {
 				// 初始化储存资源类型的列表
-				Types = new ArrayList<String>();
+				mTypes = new ArrayList<String>();
 			}
 			// 实现资源回调接口
 			callback = new ResourceCallBack() {
@@ -218,9 +218,9 @@ public class MainActivity extends Activity {
 					}
 					RESOURCES.put(helper.VALUE, helper);
 					// 如果资源种类集合中不存在该种类
-					if (!Types.contains(helper.TYPE)) {
+					if (!mTypes.contains(helper.TYPE)) {
 						// 向其中添加该种类
-						Types.add(helper.TYPE);
+						mTypes.add(helper.TYPE);
 					}
 				}
 			};
@@ -409,7 +409,7 @@ public class MainActivity extends Activity {
 	}
 
 	// 存储资源种类的集合
-	public static List<String> Types;
+	public static List<String> mTypes;
 
 	/**
 	 * 
@@ -537,17 +537,17 @@ public class MainActivity extends Activity {
 					// 点击了资源类型的文本框
 				case R.id.textCategory:
 					// 弹出一个对话框，列出所有的资源类型
-					if (Types == null) {
+					if (mTypes.isEmpty()) {
 						OpenSystemFile();
 						return;
 					}
 					new AlertDialog.Builder(MainActivity.this).setTitle("")
-						.setItems(Types.toArray(new String[Types.size()]), new DialogInterface.OnClickListener() {
+						.setItems(mTypes.toArray(new String[mTypes.size()]), new DialogInterface.OnClickListener() {
 							// 对话框上的条目点击的事件监听器
 							@Override
 							public void onClick(DialogInterface arg0, int arg1) {
 								// TODO Auto-generated method stub
-								textCategory.setText(Types.get(arg1));
+								textCategory.setText(mTypes.get(arg1));
 							}
 						}).create().show();
 					break;
@@ -594,6 +594,8 @@ public class MainActivity extends Activity {
 	public void onBackPressed() {
 		if (searchWrap.getVisibility() == LinearLayout.VISIBLE) {
 			searchWrap.setVisibility(LinearLayout.GONE);
+			filteredList.clear();
+			mAdapter.notifyDataSetChanged();
 			return;
 		} 
 		if (isChanged || checkChanged()) { // 保存文件
@@ -620,6 +622,8 @@ public class MainActivity extends Activity {
 		mAdapter = new stringListAdapter(this);
 		// 为列表控件设置数据适配器
 		stringListView.setAdapter(mAdapter);
+		
+		mTypes = new ArrayList<String>();
 
 		searchWrap = findViewById(R.id.search_wrapper);
 		searchField = findViewById(R.id.search_field);
@@ -788,7 +792,7 @@ public class MainActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
-		menu.findItem(R.id.save).setEnabled(Types != null);
+		menu.findItem(R.id.save).setEnabled(!mTypes.isEmpty());
 		return true;
 	}
 
@@ -825,6 +829,8 @@ public class MainActivity extends Activity {
 				} else {
 					searchWrap.setVisibility(LinearLayout.GONE);
 					searchField.clearFocus();
+					filteredList.clear();
+					mAdapter.notifyDataSetChanged();
 				}
 				return true;
 
