@@ -12,6 +12,10 @@
         android:id="@+id/search"
         android:title="@string/search"/>
 	
+	<item
+        android:id="@+id/go_to"
+        android:title="@string/go_to"/>
+	
 	<group
 		android:checkableBehavior="all">
 		
@@ -19,7 +23,16 @@
 			android:id="@+id/line_num"
 			android:title="@string/line_num" />
 		
+		<item
+			android:id="@+id/dark_theme"
+			android:title="@string/dark" />
+		
 	</group>
+	
+	<item
+        android:id="@+id/opened"
+		android:visible="false"
+        android:title="@string/opened"/>
 	
 	<item
         android:id="@+id/about"

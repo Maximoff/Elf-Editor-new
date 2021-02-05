@@ -40,6 +40,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -47,9 +48,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
@@ -86,9 +89,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UnknownFormatConversionException;
 import zhao.elf.editor.R;
-import zhao.elf.editor.util.FileUtil;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import zhao.elf.editor.util.FileChooser;
 
 // TEST PUSH!
 
@@ -276,7 +277,7 @@ public class MainActivity extends Activity {
 				showMessage(MainActivity.this, result).show();
 				return;
 			}
-			st(getString(R.string.success));
+			st(R.string.success);
 			if (exit) {
 				finish();
 			}
@@ -384,14 +385,14 @@ public class MainActivity extends Activity {
 				ln_wrap.setVisibility(LinearLayout.VISIBLE);
 				num.setText(String.valueOf(position + 1));
 				if (minWidth == 0) {
-					float width = num.getPaint().measureText(String.valueOf(txtOriginal.size())); //  + int = padding in dp
-					minWidth = (int) (width * mContext.getResources().getDisplayMetrics().density * 0.5f);
+					float width = num.getPaint().measureText(String.valueOf(txtOriginal.size())) + mContext.getResources().getDimension(R.dimen.padding_normal); //  + int = padding in dp
+					minWidth = Math.round(width * mContext.getResources().getDisplayMetrics().density * 0.5f);
 				}
 				num.setMinimumWidth(minWidth);
 			} else {
 				ln_wrap.setVisibility(LinearLayout.GONE);
 			}
-			
+
 			// 获取显示原来的字符串的控件
 			final TextView txtOriginalView = view.findViewById(R.id.txtOriginal);
 			// 获取用来修改的文本框
@@ -460,7 +461,7 @@ public class MainActivity extends Activity {
 											create().
 											show();
 									} else {
-										st(getString(R.string.error));
+										st(R.string.error);
 									}
 									return true;
 								}
@@ -533,10 +534,14 @@ public class MainActivity extends Activity {
 	private int searchPosition = 0;
 
 	private boolean isOpened = false;
-	
+
 	private SharedPreferences preferences;
-	
+
 	private boolean lineNumbers;
+
+	private boolean darkTheme;
+
+	private File openedFile;
 
 	/**
 	 * 文本框内容改变的事件监听器
@@ -609,7 +614,7 @@ public class MainActivity extends Activity {
 				case R.id.textCategory:
 					// 弹出一个对话框，列出所有的资源类型
 					if (mTypes.isEmpty()) {
-						OpenSystemFile();
+						processFile();
 						return;
 					}
 					new AlertDialog.Builder(MainActivity.this).setTitle("")
@@ -643,22 +648,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	/** 根据返回选择的文件，来进行操作 **/
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		if (resultCode == Activity.RESULT_OK) {
-			Uri uri = data.getData();
-			fileSrc = FileUtil.getPathFromUri(this, uri);
-			// fileSrc = uri.getPath();
-			try {
-				open(new FileInputStream(fileSrc));
-			} catch (IOException e) {
-				showMessage(this, e.toString()).show();
-			}
-		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
+	private boolean toExit;
 
 	/** 返回事件 */
 	@Override
@@ -672,18 +662,33 @@ public class MainActivity extends Activity {
 		if (isChanged || checkChanged()) { // 保存文件
 			showSaveDialog(true);
 		} else {
-			finish();
+			if (toExit) {
+				finish();
+				return;
+			}
+			toExit = true;
+			st(R.string.exit_toast);
+			new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						toExit = false;                       
+					}
+				}, 2000);
 		}
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		// 设置主界面布局文件
-		setContentView(R.layout.string_list);
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		lineNumbers = preferences.getBoolean("line_num", true);
-		
+		darkTheme = preferences.getBoolean("dark_theme", true);
+		if (darkTheme) {
+			setTheme(R.style.AppTheme);
+		} else {
+			setTheme(R.style.AppThemeLight);
+		}
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.string_list);
 		// 初始化列表控件
 		stringListView = findViewById(R.id.list_res_string);
 		// 初始化显示资源类型的文本框
@@ -716,19 +721,38 @@ public class MainActivity extends Activity {
 					return false;
 				}
 			});
-
 		checkPerm(this, new String[]{"READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"});
+		if (savedInstanceState != null && savedInstanceState.containsKey("opened_file")) {
+			openedFile = new File(savedInstanceState.getString("opened_file"));
+			try {
+				open(new FileInputStream(openedFile));
+			} catch (Exception e) {}
+		}
 	}
 
-	private void scroll(final int pos) {
+	private void scroll(int pos) {
+		scroll(pos, true);
+	}
+
+	private void scroll(final int pos, final boolean focus) {
 		new Handler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
 					stringListView.setSelection(pos);
-					searchField.requestFocus();
-					searchField.setSelection(searchField.getText().length());
+					if (focus) {
+						searchField.requestFocus();
+						searchField.setSelection(searchField.getText().length());
+					}
 				}
 			}, 100);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (openedFile != null) {
+			outState.putString("opened_file", openedFile.getAbsolutePath());
+		}
 	}
 
 	@Override
@@ -738,7 +762,7 @@ public class MainActivity extends Activity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					// this.OpenSystemFile();
                 } else if (!shouldShowRequestPermissionRationale(permissions[0])) {
-					st(getString(R.string.permission_alert));
+					st(R.string.permission_alert);
 					goToSettings();
 					this.finish();
 				} else {
@@ -754,6 +778,10 @@ public class MainActivity extends Activity {
 	private void goToSettings() {
 		Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
 		startActivity(myAppSettings);
+	}
+
+	public void st(int id) {
+		Toast.makeText(this, id, Toast.LENGTH_SHORT).show();
 	}
 
 	public void st(String s) {
@@ -797,18 +825,6 @@ public class MainActivity extends Activity {
 		AsyncTask<String, Void, Void> getTask = new GetTask();
 		// 开启该线程
 		getTask.execute(textCategory.getText().toString());
-	}
-
-	public void OpenSystemFile() {
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("*/*");
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		try {
-			startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), 0x111);
-		} catch (android.content.ActivityNotFoundException ex) {
-			// Potentially direct the user to the Market with a Dialog
-			st(getString(R.string.install_fm));
-		}
 	}
 
 	/**
@@ -934,7 +950,10 @@ public class MainActivity extends Activity {
 		inflater.inflate(R.menu.main, menu);
 		menu.findItem(R.id.save).setEnabled(isOpened);
 		menu.findItem(R.id.search).setEnabled(isOpened);
+		menu.findItem(R.id.go_to).setEnabled(isOpened);
 		menu.findItem(R.id.line_num).setChecked(lineNumbers);
+		menu.findItem(R.id.dark_theme).setChecked(darkTheme);
+		menu.findItem(R.id.opened).setVisible(isOpened);
 		return true;
 	}
 
@@ -942,7 +961,8 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.open:
-				this.OpenSystemFile();
+				// openSystemFile();
+				processFile();
 				return true;
 
 			case R.id.save:
@@ -957,14 +977,66 @@ public class MainActivity extends Activity {
 				if (searchWrap.getVisibility() == LinearLayout.VISIBLE) {
 					searchWrap.setVisibility(LinearLayout.GONE);
 				}
+				toExit = true;
 				this.onBackPressed();
 				return true;
-				
+
 			case R.id.line_num:
 				lineNumbers = !item.isChecked();
 				preferences.edit().putBoolean("line_num", lineNumbers).commit();
 				invalidateOptionsMenu();
 				mAdapter.notifyDataSetChanged();
+				return true;
+
+			case R.id.dark_theme:
+				darkTheme = !item.isChecked();
+				preferences.edit().putBoolean("dark_theme", darkTheme).commit();
+				recreate();
+				return true;
+
+			case R.id.opened:
+				if (openedFile != null) {
+					new AlertDialog.Builder(this).
+						setTitle(R.string.opened).
+						setMessage(openedFile.getAbsolutePath()).
+						setPositiveButton(R.string.ok, null).
+						setNegativeButton(R.string.copy, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface p1, int p2) {
+								setClipboard(openedFile.getAbsolutePath());
+							}
+						}).
+						create().
+						show();
+				}
+				return true;
+
+			case R.id.go_to:
+				final EditText et = new EditText(this);
+				et.setSingleLine(true);
+				et.setInputType(InputType.TYPE_CLASS_NUMBER);
+				et.setHint(1 + " - " + txtOriginal.size());
+				new AlertDialog.Builder(this).
+					setView(et).
+					setTitle(R.string.go_to).
+					setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface p1, int p2) {
+							try {
+								int line = Math.abs(Integer.parseInt(et.getText().toString()));
+								if (line > 0 && line <= txtOriginal.size()) {
+									scroll(line - 1, false);
+								} else {
+									st(R.string.error);
+								}
+							} catch (Exception e) {
+								st(R.string.error);
+							}
+						}
+					}).
+					setNegativeButton(R.string.cancel, null).
+					create().
+					show();
 				return true;
 
 			case R.id.search:
@@ -1004,7 +1076,7 @@ public class MainActivity extends Activity {
 			android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
 			clipboard.setPrimaryClip(clip);
 		}
-		st(getString(R.string.copied));
+		st(R.string.copied);
 	}
 
 	public static String base64decode(String text) {
@@ -1014,5 +1086,23 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             return null;
         }
+    }
+
+	private void processFile() {
+        FileChooser fileChooser = new FileChooser(this);
+        fileChooser.setFileListener(new FileChooser.FileSelectedListener() {
+				@Override
+				public void fileSelected(final File file) {
+					try {
+						openedFile = file;
+						open(new FileInputStream(openedFile));
+					} catch (Exception e) {
+						openedFile = null;
+						showMessage(MainActivity.this, e.toString()).show();
+					}
+				}
+			});
+        // fileChooser.setExtension(".so");
+        fileChooser.showDialog();
     }
 }

@@ -23,10 +23,14 @@
 	<string name="save">Save</string>
 	<string name="search">Search</string>
 	<string name="exit">Exit</string>
+	<string name="opened">Opened file</string>
+	<string name="exit_toast">To exit, press \"Back\" again</string>
+	<string name="go_to">Go to line</string>
 	<string name="line_num">Line numbers</string>
+	<string name="dark">Dark theme</string>
 	<string name="select">Select a file</string>
 	<string name="thanks">Give thanks</string>
 	<string name="github">GitHub</string>
 	<string name="about">About</string>
-	<string name="about_text">ELF library (*.so) editor for Android.</string>
+	<string name="about_text">ELF files (executable and *.so) editor for Android.</string>
 </resources>

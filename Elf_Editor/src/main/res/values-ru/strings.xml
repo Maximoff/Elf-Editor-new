@@ -23,9 +23,13 @@
 	<string name="save">Сохранить</string>
 	<string name="search">Поиск</string>
 	<string name="exit">Выход</string>
+	<string name="opened">Открытый файл</string>
+	<string name="exit_toast">Для выхода нажмите \"Назад\" ещё раз</string>
+	<string name="go_to">Перейти к строке</string>
 	<string name="line_num">Номера строк</string>
+	<string name="dark">Тёмная тема</string>
 	<string name="select">Выберите файл</string>
 	<string name="thanks">Поблагодарить</string>
 	<string name="about">О программе</string>
-	<string name="about_text">Редактор ELF (*.so) библиотек для Android.</string>
+	<string name="about_text">Редактор ELF (исполняемых и *.so) файлов для Android.</string>
 </resources>

@@ -18,7 +18,9 @@
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:id="@+id/number"
-			android:text="0"/>
+			android:padding="@dimen/padding_normal"
+			android:text="0"
+			android:gravity="center_horizontal"/>
 
 		<View
 			android:background="?android:attr/dividerHorizontal"

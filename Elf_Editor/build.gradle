@@ -8,7 +8,7 @@ android {
         applicationId "zhao.elf.editor"
         minSdkVersion 9
         targetSdkVersion 28
-        versionCode 4
+        versionCode 5
         versionName "2.0"
     }
     buildTypes {

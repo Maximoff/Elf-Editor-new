@@ -2,4 +2,6 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.Material">
 	</style>
+	<style name="AppThemeLight" parent="@android:style/Theme.Material.Light">
+	</style>
 </resources>
