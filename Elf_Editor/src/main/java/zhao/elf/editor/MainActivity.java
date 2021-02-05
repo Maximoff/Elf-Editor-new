@@ -87,6 +87,8 @@ import java.util.Map;
 import java.util.UnknownFormatConversionException;
 import zhao.elf.editor.R;
 import zhao.elf.editor.util.FileUtil;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 // TEST PUSH!
 
@@ -301,6 +303,7 @@ public class MainActivity extends Activity {
 
 		// 上下文
 		private Context mContext;
+		private int minWidth = 0;
 
 		// 构造函数
 		public stringListAdapter(Context context) {
@@ -375,6 +378,20 @@ public class MainActivity extends Activity {
 			} else {
 				view.setBackgroundColor(Color.TRANSPARENT);
 			}
+			LinearLayout ln_wrap = view.findViewById(R.id.ln_wrap);
+			TextView num = view.findViewById(R.id.number);
+			if (lineNumbers) {
+				ln_wrap.setVisibility(LinearLayout.VISIBLE);
+				num.setText(String.valueOf(position + 1));
+				if (minWidth == 0) {
+					float width = num.getPaint().measureText(String.valueOf(txtOriginal.size())); //  + int = padding in dp
+					minWidth = (int) (width * mContext.getResources().getDisplayMetrics().density * 0.5f);
+				}
+				num.setMinimumWidth(minWidth);
+			} else {
+				ln_wrap.setVisibility(LinearLayout.GONE);
+			}
+			
 			// 获取显示原来的字符串的控件
 			final TextView txtOriginalView = view.findViewById(R.id.txtOriginal);
 			// 获取用来修改的文本框
@@ -516,6 +533,10 @@ public class MainActivity extends Activity {
 	private int searchPosition = 0;
 
 	private boolean isOpened = false;
+	
+	private SharedPreferences preferences;
+	
+	private boolean lineNumbers;
 
 	/**
 	 * 文本框内容改变的事件监听器
@@ -660,6 +681,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		// 设置主界面布局文件
 		setContentView(R.layout.string_list);
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		lineNumbers = preferences.getBoolean("line_num", true);
+		
 		// 初始化列表控件
 		stringListView = findViewById(R.id.list_res_string);
 		// 初始化显示资源类型的文本框
@@ -910,6 +934,7 @@ public class MainActivity extends Activity {
 		inflater.inflate(R.menu.main, menu);
 		menu.findItem(R.id.save).setEnabled(isOpened);
 		menu.findItem(R.id.search).setEnabled(isOpened);
+		menu.findItem(R.id.line_num).setChecked(lineNumbers);
 		return true;
 	}
 
@@ -933,6 +958,13 @@ public class MainActivity extends Activity {
 					searchWrap.setVisibility(LinearLayout.GONE);
 				}
 				this.onBackPressed();
+				return true;
+				
+			case R.id.line_num:
+				lineNumbers = !item.isChecked();
+				preferences.edit().putBoolean("line_num", lineNumbers).commit();
+				invalidateOptionsMenu();
+				mAdapter.notifyDataSetChanged();
 				return true;
 
 			case R.id.search:

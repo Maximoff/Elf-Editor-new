@@ -12,6 +12,15 @@
         android:id="@+id/search"
         android:title="@string/search"/>
 	
+	<group
+		android:checkableBehavior="all">
+		
+		<item
+			android:id="@+id/line_num"
+			android:title="@string/line_num" />
+		
+	</group>
+	
 	<item
         android:id="@+id/about"
         android:title="@string/about"/>

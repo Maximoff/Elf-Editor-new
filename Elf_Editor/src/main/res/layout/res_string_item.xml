@@ -6,6 +6,27 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:id="@+id/ln_wrap"
+		android:visibility="gone">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:id="@+id/number"
+			android:text="0"/>
+
+		<View
+			android:background="?android:attr/dividerHorizontal"
+			android:layout_width="1dp"
+			android:layout_height="match_parent"/>
+
+	</LinearLayout>
+
 	<TextView
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:gravity="top|right"
