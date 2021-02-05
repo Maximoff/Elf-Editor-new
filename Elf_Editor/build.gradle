@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
     
 
     defaultConfig {
         applicationId "zhao.elf.editor"
         minSdkVersion 9
-        targetSdkVersion 29
-        versionCode 3
-        versionName "1.1"
+        targetSdkVersion 28
+        versionCode 4
+        versionName "1.2"
     }
     buildTypes {
         release {

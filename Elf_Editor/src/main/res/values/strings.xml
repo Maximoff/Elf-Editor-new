@@ -17,4 +17,9 @@
 	<string name="install_fm">Please install the file manager</string>
 	<string name="select_file">Please select a file!</string>
 	<string name="err_rename">Error when renamed the file: %s</string>
+	<string name="open">Open</string>
+	<string name="save">Save</string>
+	<string name="search">Search</string>
+	<string name="exit">Exit</string>
+	<string name="select">Select a file</string>
 </resources>

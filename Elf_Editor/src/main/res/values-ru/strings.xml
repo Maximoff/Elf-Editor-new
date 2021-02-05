@@ -17,4 +17,9 @@
 	<string name="install_fm">Установите файловый менеджер</string>
 	<string name="select_file">Выберите файл!</string>
 	<string name="err_rename">Ошибка переименования файла: %s</string>
+	<string name="open">Открыть</string>
+	<string name="save">Сохранить</string>
+	<string name="search">Поиск</string>
+	<string name="exit">Выход</string>
+	<string name="select">Выберите файл</string>
 </resources>
