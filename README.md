@@ -1,4 +1,4 @@
 # Elf-Editor-new
-Редактор ELF (*.so) библиотек для Android.
+Редактор ELF (исполняемых и *.so) файлов для Android.
 
 Форк этого проекта: https://github.com/seaase/Elf-Editor
