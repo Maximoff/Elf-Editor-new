@@ -122,9 +122,6 @@ public class MainActivity extends Activity {
 				}
 				////////////////////////////////////////////////////////////
 
-				txtOriginal.clear();
-				txtTranslated.clear();
-
 				for (ResourceHelper resource : RESOURCES.values()) {
 					// 获取资源的值
 					String VALUE = resource.VALUE;
@@ -147,7 +144,8 @@ public class MainActivity extends Activity {
 			// 隐藏进度条
 			dlg.dismiss();
 			// 通知数据适配器更新数据
-			mAdapter.notifyDataSetInvalidated();
+			// mAdapter.notifyDataSetInvalidated();
+			mAdapter.notifyDataSetChanged();
 		}
 
 		// 耗时任务开始前执行的任务
@@ -158,8 +156,9 @@ public class MainActivity extends Activity {
 			dlg.setCancelable(false);
 			dlg.setTitle(R.string.parsing);
 			dlg.show();
+			txtOriginal.clear();
+			txtTranslated.clear();
 		}
-
 	}
 
 	/**
@@ -285,7 +284,7 @@ public class MainActivity extends Activity {
 				for (int i = 0; i < txtOriginal.size(); i++) {
 					String s = txtTranslated.get(i);
 					if (!s.equals("")) {
-						txtOriginal.set(i,s);
+						txtOriginal.set(i, s);
 						txtTranslated.set(i, "");
 					}
 				}
@@ -723,7 +722,11 @@ public class MainActivity extends Activity {
 						} else {
 							searchPosition = 0;
 						}
-						scroll(filteredList.get(searchPosition));
+						if (filteredList.isEmpty()) {
+							st(R.string.not_found);
+						} else {
+							scroll(filteredList.get(searchPosition));
+						}
 						return true;
 					}
 					return false;

@@ -4,6 +4,7 @@
     <string name="ok">Ok</string>
 	<string name="no">No</string>
     <string name="cancel">Cancel</string>
+	<string name="not_found">Not found!</string>
     <string name="error">Error</string>
     <string name="success">Success</string>
     <string name="failure">Failure</string>
