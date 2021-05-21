@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
 			dlg.dismiss();
 			// 通知数据适配器更新数据
 			// mAdapter.notifyDataSetInvalidated();
-			mAdapter.notifyDataSetChanged();
+			mAdapter.notifyDataSetInvalidated();
 		}
 
 		// 耗时任务开始前执行的任务
